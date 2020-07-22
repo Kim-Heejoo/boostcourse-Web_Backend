@@ -1231,3 +1231,166 @@ delete from ROLE where role_id = 200;
 
 
 ## 3) DDL(create, drop)
+
+### 1. MySQL 데이터 타입
+
+![MySQL 데이터 타입](./img/2-3-01.png)
+
+![MySQL 데이터 타입](./img/2-3-02.png)
+
+
+
+### 2. CREATE TABLE
+
+![CREATE TABLE](./img/2-3-03.png)
+
+- 예제1 : EMPLOYEE와 같은 구조를 가진 EMPLOYEE2 테이블을 생성하시오.
+
+![CREATE TABLE](./img/2-3-04.png)
+
+``` mysql
+CREATE TABLE EMPLOYEE2(   
+           empno      INTEGER NOT NULL PRIMARY KEY,  
+           name       VARCHAR(10),   
+           job        VARCHAR(9),   
+           boss       INTEGER,   
+           hiredate   VARCHAR(12),   
+           salary     DECIMAL(7, 2),   
+           comm       DECIMAL(7, 2),   
+           deptno     INTEGER);
+```
+
+- 예제2 : book 테이블을 생성하시오.
+
+``` mysql
+CREATE TABLE BOOK(
+           isbn       varchar(10) primary key,
+           title      varchar(20) not null,
+           price      integer not null);
+```
+
+![CREATE TABLE](./img/2-3-04-1.png)
+
+
+
+### 3. ALTER TABLE
+
+![ALTER TABLE](./img/2-3-05.png)
+
+#### 3.1. 컬럼 추가
+
+- 예제1 : EMPLOYEE2 테이블에 생일(birthdate) 칼럼을 varchar(12) 형식으로 추가하시오.
+
+``` mysql
+alter table EMPLOYEE2
+add birthdate varchar(12);
+```
+
+![ALTER TABLE - 컬럼 추가](./img/2-3-06.png)
+
+- 예제2 : book 테이블에 작가(author) 칼럼을 varchar(20) 형식으로 추가하시오.
+
+```mysql
+mysql> alter table book
+    -> add author varchar(20);
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc book;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| isbn   | varchar(10) | NO   | PRI | NULL    |       |
+| title  | varchar(20) | NO   |     | NULL    |       |
+| price  | int         | NO   |     | NULL    |       |
+| author | varchar(20) | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+4 rows in set (0.02 sec)
+```
+
+
+
+#### 3.2. 컬럼 삭제
+
+- 예제1 : EMPLOYEE2 테이블의 생일(birthdate) 칼럼을 삭제하시오.
+
+``` mysql
+alter table EMPLOYEE2
+drop birthdate;
+```
+
+![ALTER TABLE - 컬럼 삭제](./img/2-3-07.png)
+
+- 예제2 : book 테이블의 가격(price) 칼럼을 삭제하시오.
+
+```mysql
+mysql> alter table book
+    -> drop price;
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc book;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| isbn   | varchar(10) | NO   | PRI | NULL    |       |
+| title  | varchar(20) | NO   |     | NULL    |       |
+| author | varchar(20) | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+```
+
+
+
+#### 3.3. 컬럼 수정
+
+![ALTER TABLE - 컬럼 수정](./img/2-3-08.png)
+
+- 예제 : EMPLOYEE2 테이블의 부서번호(deptno)를 dept_no로 수정하시오.
+
+``` mysql
+alter table EMPLOYEE2
+change deptno dept_no int(11);
+```
+
+![ALTER TABLE - 컬럼 수정](./img/2-3-09.png)
+
+#### 3.4. 테이블 이름 변경
+
+![ALTER TABLE - 테이블 이름 변경](./img/2-3-10.png)
+
+- 예제 : EMPLOYEE2 테이블의 이름을 EMPLOYEE3로 변경하시오.
+
+``` mysql
+alter table EMPLOYEE2
+rename EMPLOYEE3;
+```
+
+![ALTER TABLE - 테이블 이름 변경](./img/2-3-11.png)
+
+
+
+### 4. DROP TABLE
+
+![DROP TABLE](./img/2-3-12.png)
+
+- 예제 : EMPLOYEE2 테이블을 삭제하시오.
+
+> 테이블 삭제 후 desc 명령을 수행하면, 존재하지 않는 테이블이라고 표시됩니다.
+
+```mysql
+drop table EMPLOYEE2;
+```
+
+![DROP TABLE](./img/2-3-13.png)
+
+
+
+### * 참고 자료
+
+[13.1.18 CREATE TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/create-table.html)
+
+[13.1.8 ALTER TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/alter-table.html)
+
+[13.1.29 DROP TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/drop-table.html)
+
