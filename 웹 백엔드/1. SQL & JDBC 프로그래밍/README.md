@@ -1212,11 +1212,11 @@ delete from ROLE where role_id = 200;
 
 ### * 참고 자료
 
-[13.2.9 SELECT Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/select.html)
+[13.2.10 SELECT Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/select.html)
 
-[13.2.5 INSERT Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/insert.html)
+[13.2.6 INSERT Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/insert.html)
 
-[13.2.11 UPDATE ver8.0](https://dev.mysql.com/doc/refman/8.0/en/update.html)
+[13.2.13 UPDATE ver8.0](https://dev.mysql.com/doc/refman/8.0/en/update.html)
 
 [13.2.2 DELETE Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/delete.html)
 
@@ -1269,13 +1269,13 @@ CREATE TABLE BOOK(
            price      integer not null);
 ```
 
-![CREATE TABLE](./img/2-3-04-1.png)
+![CREATE TABLE](./img/2-3-05.png)
 
 
 
 ### 3. ALTER TABLE
 
-![ALTER TABLE](./img/2-3-05.png)
+![ALTER TABLE](./img/2-3-06.png)
 
 #### 3.1. 컬럼 추가
 
@@ -1286,7 +1286,7 @@ alter table EMPLOYEE2
 add birthdate varchar(12);
 ```
 
-![ALTER TABLE - 컬럼 추가](./img/2-3-06.png)
+![ALTER TABLE - 컬럼 추가](./img/2-3-07.png)
 
 - 예제2 : book 테이블에 작가(author) 칼럼을 varchar(20) 형식으로 추가하시오.
 
@@ -1319,7 +1319,7 @@ alter table EMPLOYEE2
 drop birthdate;
 ```
 
-![ALTER TABLE - 컬럼 삭제](./img/2-3-07.png)
+![ALTER TABLE - 컬럼 삭제](./img/2-3-08.png)
 
 - 예제2 : book 테이블의 가격(price) 칼럼을 삭제하시오.
 
@@ -1344,7 +1344,7 @@ mysql> desc book;
 
 #### 3.3. 컬럼 수정
 
-![ALTER TABLE - 컬럼 수정](./img/2-3-08.png)
+![ALTER TABLE - 컬럼 수정](./img/2-3-09.png)
 
 - 예제 : EMPLOYEE2 테이블의 부서번호(deptno)를 dept_no로 수정하시오.
 
@@ -1353,11 +1353,11 @@ alter table EMPLOYEE2
 change deptno dept_no int(11);
 ```
 
-![ALTER TABLE - 컬럼 수정](./img/2-3-09.png)
+![ALTER TABLE - 컬럼 수정](./img/2-3-10.png)
 
 #### 3.4. 테이블 이름 변경
 
-![ALTER TABLE - 테이블 이름 변경](./img/2-3-10.png)
+![ALTER TABLE - 테이블 이름 변경](./img/2-3-11.png)
 
 - 예제 : EMPLOYEE2 테이블의 이름을 EMPLOYEE3로 변경하시오.
 
@@ -1366,13 +1366,13 @@ alter table EMPLOYEE2
 rename EMPLOYEE3;
 ```
 
-![ALTER TABLE - 테이블 이름 변경](./img/2-3-11.png)
+![ALTER TABLE - 테이블 이름 변경](./img/2-3-12.png)
 
 
 
 ### 4. DROP TABLE
 
-![DROP TABLE](./img/2-3-12.png)
+![DROP TABLE](./img/2-3-13.png)
 
 - 예제 : EMPLOYEE2 테이블을 삭제하시오.
 
@@ -1382,15 +1382,398 @@ rename EMPLOYEE3;
 drop table EMPLOYEE2;
 ```
 
-![DROP TABLE](./img/2-3-13.png)
+![DROP TABLE](./img/2-3-14.png)
+
+
+
+### * 생각해보기
+
+- 칼럼의 길이가 10인데, 해당 칼럼에 값이 저장되어 있습니다. 이 때 칼럼의 길이를 5로 바꾼다면 어떤 일이 벌어질까요?
+  -  오류로 바꿔지지 않습니다.
+- 문자열을 저장하는 데이터 타입인 `CHAR`와` VARCHAR` 차이점에 대해 알아보고 어떤 상황에서 CHAR 또는 VARCHAR 를 선택하는 것이 효율적인지 생각해봅시다.
+  - varchar와 char은 실제 할당 저장 공간에 차이가 있고, 문자열 비교 방법이 다릅니다. varchar는 지정한 최대 길이 내에서 각 데이터 크기에 맞게 가변적으로 저장 공간을 줍니다. char은 지정한 길이 만큼 공백을 채워 고정된 저장 공간을 할당합니다. 대신 char는 추가로 연산할 필요가 없기에 검색 속도가 월등히 빠릅니다. 문자열 비교에서도 두 타입은 차이가 있습니다. 이름, 주소 등 길이가 다양한 경우엔 varchar를 써서 저장 공간을 줄이고, 주민등록번호 같이 길이가 일정하면 char를 쓰는 게 좋습니다.
+- 문자열 데이터 타입에는 문자셋을 지정할 수 있습니다. 문자셋에 따라 해당 필드가 차지하는 공간 크기를 한번 계산해보자. (예: VARCHAR(10) CHARACTER SET UTF8; 은 몇 Byte 크기를 차지할까요? ASCII 일때는 또 몇 Byte 크기를 가질까요?
+  - UTF-8은 원래 가변4바이트이지만 MYSQL에서는 가변3바이트로 만들었습니다. 후에 Emoji문자들이 4바이트를 사용해, UTF-8mb4를 만들어 가변4바이트가 가능해졌습니다.
+  - 텍스트 encoding(character set)에 따른 max length는 mysql document에서 자세히 확인할 수 있습니다. 각 encoding character의 문자 1개에 할당 가능한 최대 byte가 max_len으로 명시되어 있습니다. 같은 encoding이라도 character에 따라 작은 크기의 공간을 할당할 수 있습니다.
 
 
 
 ### * 참고 자료
 
-[13.1.18 CREATE TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/create-table.html)
+[13.1.20 CREATE TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)
 
-[13.1.8 ALTER TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/alter-table.html)
+[13.1.9 ALTER TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/alter-table.html)
 
-[13.1.29 DROP TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/5.7/en/drop-table.html)
+[13.1.32 DROP TABLE Syntax ver8.0](https://dev.mysql.com/doc/refman/8.0/en/drop-table.html)
+
+[CHAR와 VARCHAR 비교](https://hyeonstorage.tistory.com/290)
+
+[CHAR와 VARCHAR 비교](https://hack-cracker.tistory.com/165)
+
+[10.10 Supported Character Sets and Collations](https://dev.mysql.com/doc/refman/8.0/en/charset-charsets.html)
+
+
+
+# 3. 개발환경 설정
+
+## 1) JDK 다운받기 및 설치하기
+
+> JAVA언어를 작성된 프로그램을 실행하기 위해선 JRE(Java SE Runtime Environment)가 필요합니다.
+>
+> JAVA언어를 사용하는 개발자가 아니라 JAVA언어로 만들어진 프로그램을 실행하는 사용자라면 JRE만 컴퓨터에 설치하면 됩니다.
+>
+> 보통 사용자 입장에서 JAVA를 설치한다는 것은 JRE를 설치하는 것을 말합니다.
+>
+> JAVA언어를 사용하는 개발자는 JAVA언어로 작성된 소스(Source)를 컴파일하고 관리할 필요가 있습니다.
+>
+> 이때 사용되는 도구를 JDK(Java SE Development Kit)라고 말합니다.
+>
+> JDK안에는 JRE도 포함되어 있습니다.
+>
+> 컴파일한 결과를 실행하기 위해서는 JRE가 필요하기 때문입니다.
+
+### 1. JDK 다운로드 및 설치
+
+- JDK는 Oracle 사이트에서 무료로 다운로드하여 설치할 수 있습니다.
+
+브라우저로 다음의 URL을 입력하여 이동합니다.
+
+[https://www.oracle.com/java/technologies](https://www.oracle.com/java/technologies)
+
+![jdk - window용 설치](./img/3-1-01.png)
+
+위의 그림과 같이 화면이 보여지면, `Java SE`를 클릭합니다.
+
+![jdk - window용 설치](./img/3-1-02.png)
+
+> 본 과정에서는 JDK8 사용
+
+Oracle JDK 8을 다운로드 받으려면 회원가입 후 로그인을 해야합니다.
+
+만약 회원가입을 원하지 않는다면, Open JDK를 이용하는 방법도 있습니다.
+
+구글에서 `Open JDK 8 설치`라고 검색한 후 설치하시면 됩니다.
+
+위의 그림과 같이 스크롤을 내려 `JDK Download` 버튼을 클릭합니다.
+
+#### 1.1. windows용 설치
+
+![jdk - window용 설치](./img/3-1-03.png)
+
+본인이 사용하는 운영체제에 맞는 JDK를 다운로드 해야합니다.
+
+Mac 운영체제를 사용한다면 MacOS에 해당하는 `jdk-8uOOO-maxosx-x64.dmg`를 클릭하고, MS윈도우 32비트 운영체제를 사용한다면 `jdk-8uOOO-windows-i586.exe`를 클릭하여 다운로드 받습니다.
+
+참고로 MS윈도우 64비트 운영체제의 경우에는 `jdk-8uOOO-windows-x64.exe`를 다운로드 받습니다.
+
+![jdk - window용 설치](./img/3-1-04.png)
+
+JDK를 다운로드 받으려면 먼저 라이센스(License)에 동의해야합니다.
+
+위의 그림과 같은 팝업창이 뜨면 체크버튼을 클릭합니다.
+
+![jdk - window용 설치](./img/3-1-05.png)
+
+다운받은 MS Windows 64bit용 `jdk-8uOOO-windows-x64.exe` 파일을 더블클릭하여 실행하면 위의 그림과 같은 메시지가 보여집니다.
+
+Next 버튼을 클릭합니다.
+
+![jdk - window용 설치](./img/3-1-06.png)
+
+JDK가 설치될 경로(Path)를 지정합니다.
+
+JDK가 설치되는 경로를 `JAVA_HOME` 경로라고도 말합니다.
+
+해당 경로를 꼭 기억해주세요. 환경설정할 때 알아야 합니다.
+
+Next 버튼을 클릭합니다.
+
+![jdk - window용 설치](./img/3-1-07.png)
+
+JDK 설치가 끝나면 JRE가 설치될 경로를 설정하게 됩니다.
+
+Next 버튼을 클릭합니다.
+
+![jdk - window용 설치](./img/3-1-08.png)
+
+설치가 진행되고 있습니다. 잠시만 기다려주세요.
+
+![jdk - window용 설치](./img/3-1-09.png)
+
+설치가 완료되었습니다.
+
+#### 1.2. max os용 설치
+
+![jdk - mac os용 설치](./img/3-1-10.png)
+
+`jdk-8uOOO-macosx-x64.dmg`를 다운로드 받습니다.
+
+![jdk - mac os용 설치](./img/3-1-11.png)
+
+다운로드 받은 파일을 더블 클릭하면 위와 같은 창이 열립니다.
+
+![jdk - mac os용 설치](./img/3-1-12.png)
+
+위와 같이 JDK 설치 마법사가 실행됩니다.
+
+![jdk - mac os용 설치](./img/3-1-13.png)
+
+맥의 관리자 ID와 암호를 입력하라는 창이 보여집니다.
+
+본인의 맥 ID와 암호를 입력하세요.
+
+![jdk - mac os용 설치](./img/3-1-14.png)
+
+설치가 완료되었습니다.
+
+
+
+### * 생각해보기
+
+- JDK가 운영체제별로 설치파일을 제공하는 이유는 무엇입니까?
+  - JAVA는 운영체제에 독립적으로 작동하기 때문입니다. 독립적으로 파일이 실행되기 위해서는 실행되는 환경 즉, JRE가 제대로 갖춰져 있어야 하며, 이 때문에 JDK를 설치할 때 운영체제별로 다르게 설치해야 합니다.
+
+
+
+### * 참고 자료
+
+[Oracle jdk 설치 링크](https://www.oracle.com/java/technologies/javase-downloads.html)
+
+[open jdk 설치 링크](https://openjdk.java.net/install/)
+
+
+
+## 2) 환경설정하기
+
+JDK를 설치한 이후에는 JDK를 콘솔(console) 환경에서 잘 실행될 수 있도록 시스템 환경 설정을 해야 합니다.
+
+시스템 환경 설정을 하는 방법은 운영체제에 따라서 다릅니다. 
+
+### 1. JAVA 환경설정
+
+JDK설치가 완료되었다면, JDK에 대한 시스템 환경설정을 해야 합니다.
+
+시스템 환경설정을 하는 방법은 운영체제마다 다릅니다.
+
+운영체제 마다 시스템 환경설정하는 방법은 다르지만, 설정해야 할 환경변수의 이름은 같습니다.
+
+설정해야 할 환경변수는 다음과 같은 3가지입니다.
+
+- JAVA_HOME : JAVA가 설치된 경로를 지정
+- CLASSPATH : JAVA 클래스가 있는 경로들을 지정
+- PATH : JAVA 실행파일이 있는 경로를 추가
+
+JAVA_HOME, CLASSPATH는 시스템 환경변수에 새롭게 추가될 환경 변수이고, PATH는 기존에 존재하는 환경 변수입니다.
+
+#### 1.1. MS Windows 10에서의 환경설정
+
+MS Windows 10에서 JDK 관련된 환경변수를 설정해 보도록 하겠습니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-01.png)
+
+`찾기` 버튼을 누른 다음에 `시스템 환	`까지 입력합니다.
+
+그러면 검색 결과에 `시스템 환경 변수 편집`이라는 결과가 보여질 것입니다.
+
+`시스템 환경 변수 편집`을 선택합니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-02.png)
+
+위와 같은 창이 열리면 `환경변수` 버튼을 클릭합니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-03.png)
+
+시스템 변수 영역의 `새로 만들기` 버튼을 클릭합니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-04.png)
+
+위의 그림과 같이 변수 이름엔 `JAVA_HOME`을, 변수 값엔 JDK가 설치된 경로를 입력합니다.
+
+(파일 탐색기에서 해당 경로로 이동한 후 복사하여 붙이기를 추천합니다.)
+
+![java 환경설정 - windows 10 설치](./img/3-2-05.png)
+
+위의 그림과 같이 `JAVA_HOME` 환경변수가 시스템 변수 영역에 추가된 것을 확인할 수 있습니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-06.png)
+
+같은 방법으로 `CLASSPATH` 환경변수를 추가합니다.
+
+값은 `.;%JAVA_HOME%\lib\tools.jar`로 입력합니다.
+
+`%JAVA_HOME%`은 앞에서 설정한 `JAVA_HOME` 환경변수의 값으로 치환하라는 의미입니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-07.png)
+
+시스템 변수 영역에서 `PATH`를 찾아서 선택한 후 `편집` 버튼을 클릭한 후 위의 그림과 같은 창이 열리면 우측의 `새로 만들기` 버튼을 클릭한 후 
+
+`%JAVA_HOME%\bin`을 입력합니다.
+
+![java 환경설정 - windows 10 설치](./img/3-2-08.png)
+
+`윈도우키 + R`을 입력하여 실행창이 열리도록 한 후, `cmd`라고 입력하고 엔터를 입력합니다.
+
+이 때 cmd 콘솔(console) 창이 열리게 됩니다.
+
+해당 콘솔창에서 다음와 같이 내용을 입력합니다.
+
+```cmd
+java -version
+javac -version
+```
+
+`java` 명령은 JAVA로 작성된 프로그램을 실행할 때 사용하는 명령이고, `javac` 명령은 java로 작성된 프로그램을 컴파일할 때 사용하는 명령입니다.
+
+위의 그림과 같이 실행 결과가 보인다면 설치가 잘 된 것입니다.
+
+만약 java는 잘 실행되는데 javac가 제대로 실행되지 않는다면, 시스템 환경 변수 설정이 잘못 설정되었거나 JDK가 아닌 JRE만 설치되었을 때입니다.
+
+환경변수에 오타가 있는지 확인하고 알맞게 수정하여 주세요.
+
+환경변수가 수정되었다면 cmd 콘솔창을 닫고 다시 cmd 콘솔창을 열어서 명령을 실행해야 합니다.
+
+#### 1.2. Mac OS에서의 환경설정
+
+설치가 완료된 이후에, 터미널을 연 후 아래와 같이 명령을 내립니다.
+
+```cmd
+cd /Library/Java/JavaVirtualMachines
+ls -la
+```
+
+그러면 아래와 같이 보일 것입니다.
+
+위에서 사용한 명령은 맥 터미널 명령입니다. ( 리눅스도 같은 명령을 사용할 수 있습니다. )
+
+2가지 버전의 jdk가 설치되어 있을 경우 jdk1.8.0_121.jdk 와 jdk1.8.0_91.jdk 같이 2가지가 보입니다.
+
+처음 설치했다면 경로가 하나만 보일 것입니다.
+
+![java 환경설정 - mac os 설치](./img/3-2-09.png)
+
+```cmd
+cd /Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home  
+```
+
+위와 같은 명령으로 경로를 이동해보세요.
+
+중간에 있는 jdk1.8.0_121.jdk는 본인이 설치한 jdk와 같은 경로여야 합니다.
+
+해당 경로를 `JAVA_HOME` 경로라고 합니다.
+
+해당 경로에서 `ls -la` 명령을 내려보면 윈도우에서 설치한 JDK와 같은 내용이 보이는 것을 알 수 있을 것입니다.
+
+이제 맥에서 JDK를 사용하기 위해서 환경설정을 해야 합니다.
+
+먼저 다음과 같은 명령을 실행합니다.
+
+``` cmd
+sudo su -
+```
+
+위의 명령은 터미널에서 관리자로 권한을 바꾸겠다는 것을 의미합니다.
+
+``` cmd
+vi /etc/paths
+```
+
+위의 명령은 `vi`라는 에디터로 /etc/paths 라는 파일을 편집하겠다는 것을 의미합니다.
+
+`vi 에디터`는 처음 사용하면 굉장히 어렵습니다.
+
+인터넷에서 vi 에디터에 대한 사용법을 미리 공부한 후 사용해주세요.
+
+에디터로 /etc/paths라는 파일을 열었다면 맨 아랫줄에 다음의 경로를 추가합니다.
+
+``` cmd
+/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home/bin
+```
+
+그리고 파일을 저장합니다.
+
+이렇게 저장을 한 후, 다시 터미널을 열면 어디서든 `java`명령을 실행할 수 있습니다.
+
+이번엔 다음과 같은 명령으로 `JAVA_HOME`과 `CLASSPATH` 환경변수를 지정합니다.
+
+```cmd
+vi /etc/profile
+```
+
+위의 명령을 실행한 후 맨 아랫줄에 다음의 내용을 추가합니다.
+
+```cmd
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
+export CLASSPATH=.:$JAVA_HOME/lib/tools.jar
+```
+
+`CLASSPATH=`다음에 있는 문자열은 `점(.)`과 `콜론(:)`입니다.
+
+점은 현재 경로를 말하고 콜론은 구분자입니다.
+
+`CLASSPATH`로 현재 경로와 `$JAVA_HOME/lib/tools.jar`를 지정하라는 것을 의미합니다.
+
+자 위와 같이 설정하였다면 터미널을 종료 후 다시 실행합니다.
+
+그리고 아래와 같이 명령을 내려봅시다.
+
+```cmd
+java -version
+```
+
+아래의 그림과 같이 결과가 출력된다면 설치가 잘 된 것입니다.
+
+![java 환경설정 - mac os 설치](./img/3-2-10.png)
+
+
+
+### 2. 간단한 JAVA 프로그램 컴파일 및 실행
+
+메모장을 열어 `Hello.java`라는 파일로 다음의 내용을 저장합니다.
+
+```java
+public class Hello{
+     public static void main(String args[]){
+       System.out.println("hello world");
+     }
+}
+```
+
+어떤 디렉토리에 저장해도 상관은 없습니다.
+
+cmd 콘솔창을 연 후 다음과 같이 입력합니다.
+
+```cmd
+cd C:\Users\delig
+```
+
+본인이 저장한 디렉토리로 이동합니다.
+
+```cmd
+javac Hello.java
+```
+
+위의 명령은 `Hello.java` 소스파일을 컴파일하라는 명령입니다.
+
+컴파일 되면 `Hello.class` 파일이 생성됩니다.
+
+`Hello.class`파일이 생성되었다면, 다음의 명령으로 실행합니다.
+
+```cmd
+java Hello
+```
+
+`hello world`가 잘 출력되었다면, JDK설치부터 환경변수설정까지 잘 되었다는 것을 알 수 있습니다.
+
+<img src="./img/3-2-11.png" alt="간단한 JAVA 프로그램 컴파일 및 실행" style="zoom:150%;" />
+
+
+
+### * 생각해보기
+
+- 자바로 작성된 프로그램을 실행하려면 JRE만 설치하면 됩니다. 이때는 환경변수를 설정할 필요가 없습니다. 그런데, JDK를 설치할 때는 환경변수를 설정해야 합니다. 환경변수를 설정하는 이유가 무엇일까요?
+  - 환경 변수를 지정해두면, console에서는 `java`만 입력해도 path 환경변수 내 저장된 디렉토리들을 탐색하며 java 파일을 찾아 실행합니다. 즉 환경변수에 등록된 경로는 컴퓨터의 어떤 경로에서라도 접근할 수 있어 파일의 접근을 쉽고 편하게 해줍니다.
+- 현재 설치된 JDK보다 높은 버전의 JDK를 설치했습니다. 이때 수정해야 할 환경변수는 무엇일까요?
+  - `JAVA_HOME `을 수정해야 합니다. 나머지 환경변수들은 `JAVA_HOME`을 참조하여 디렉토리를 정하기 때문입니다.
+
+
 
