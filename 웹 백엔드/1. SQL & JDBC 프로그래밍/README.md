@@ -2093,3 +2093,454 @@ public class Hello {
 
 
 
+# 4. Maven
+
+## 1) Maven 이란?
+
+### 1. Maven이란?
+
+`Maven`은 지금까지 애플리케이션을 개발하기 위해 반복적으로 진행해왔던 작업들을 지원하기 위하여 등장한 도구입니다. Maven을 사용하면 빌드(Build), 패키징, 문서화, 테스트와 테스트 리포팅, git, 의존성관리, svn등과 같은 형상관리서버와 연동(SCMs), 배포 등의 작업을 손쉽게 할 수 있습니다.
+
+Maven을 이해하려면 `CoC(Convention over Configuration)`라는 단어를 먼저 이해해야 합니다. CoC란 일종의 관습을 말하는데, 예를 들자면 프로그램의 소스파일은 어떤 위치에 있어야 하고, 소스가 컴파일된 파일들은 어떤 위치에 있어야 하고 등을 미리 정해놨다는 것입니다. 이 말은 관습에 이미 익숙한 사용자는 쉽게 Maven을 사용할 수 있는데, 관습에 익숙하지 않은 사용자는 이러한 제약사항에 대해서 심한 거부감을 느낄 수 있습니다. Maven을 사용한다는 것은 어쩌면 이러한 관습 즉 CoC에 대해서 알아나가는 것이라고도 말할 수 있습니다. 
+
+
+
+### 2. Maven을 사용할 경우 얻게 되는 이점은?
+
+Maven을 사용할 경우, 굉장히 편리한 점들이 많습니다.
+
+많은 사람이 손꼽는 장점 중에는 편리한 의존성 라이브러리 관리가 있습니다. JSTL을 학습할 때, 몇 가지 파일을 다운로드 하여 /WEB-INF/lib폴더에 복사하여 사용했었습니다. 관련된 라이브러리가 많아질수록 이러한 방식은 상당히 불편해집니다. Maven을 사용하면 설정 파일에 몇 줄 적어줌으로써 직접 다운로드 받거나 하는 것을 하지 않아도 라이브러리를 사용할 수 있습니다.
+
+프로젝트에 참여하는 개발자가 많아지게 되면, 프로젝트를 빌드하는 방법에 대하여 가이드하는 것도 쉬운 일이 아닙니다. Maven을 사용하게 되면 Maven에 설정한 대로 모든 개발자가 일관된 방식으로 빌드를 수행할 수 있게 됩니다.
+
+Maven은 또한 다양한 플러그인을 제공해줘서, 굉장히 많은 일들을 자동화시킬 수 있습니다.
+
+
+
+### 3. Maven 기본
+
+Archetype을 이용하여 Maven 기반 프로젝트를 생성할 경우 생성된 프로젝트 하위에 `pom.xml` 파일이 생성됩니다.
+
+pom.xml 파일을 살펴보면 다음과 같습니다. 
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>kr.or.connect</groupId>
+    <artifactId>examples</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>mysample</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+각각의 태그의 의미는 다음과 같습니다.
+
+- project : pom.xml 파일의 최상위 루트 엘리먼트(Root Element).
+- modelVersion : POM model의 버전.
+- groupId : 프로젝트를 생성하는 조직의 고유 아이디를 결정. 일반적으로 도메인 이름을 거꾸로 적습니다.
+- artifactId : 해당 프로젝트에 의하여 생성되는 artifact의 고유 아이디를 결정. Maven을 이용하여 pom.xml을 빌드할 경우 `artifactid-version.packaging`와 같은 규칙으로 artifact가 생성됩니다. 위 예를 빌드할 경우 examples-1.0-SNAPSHOT.jar 파일이 생성됩니다.
+- packaging : 해당 프로젝트를 어떤 형태로 packaging 할 것인지 결정. `jar, war, ear` 등이 해당됩니다.
+- version : 프로젝트의 현재 버전. 추후 살펴보겠지만 프로젝트가 개발 중일 때는 `SNAPSHOT`을 접미사로 사용합니다. Maven의 버전 관리 기능은 라이브러리 관리를 편하게 합니다.
+- name : 프로젝트의 이름.
+- url : 프로젝트 사이트가 있다면 사이트 URL을 등록하는 것이 가능합니다.
+- dependencies : 해당 엘리먼트 안에 필요한 라이브러리 지정. Maven을 이용할 경우 얻게 되는 큰 이점 중의 하나는 Dependency Management 기능입니다. dependencies 엘리먼트가 Dependency Management 기능의 핵심이라고 할 수 있습니다.
+
+
+
+### * 참고 자료
+
+[Maven - Welcome to Apache Maven](http://maven.apache.org/)
+
+
+
+## 2) Maven을 이용한 웹 어플리케이션 실습
+
+### 1. Maven을 이용한 웹 어플리케이션 프로젝트 생성
+
+이클립스를 실행하고, 이클립스의 메뉴 중 `File -> New -> Project`를 선택합니다.
+
+![Maven 프로젝트 생성](./img/4-2-01.png)
+
+프로젝트 위자드(Wizard)가 뜨면, Maven아래의 `Maven Project`를 선택한 후 `Next` 버튼을 클릭합니다.
+
+![Maven 프로젝트 생성](./img/4-2-02.png)
+
+Maven프로젝트가 기존 워크스페이스 경로에 생성되도록 합니다.
+
+`Next` 버튼을 클릭합니다.
+
+![Maven 프로젝트 생성](./img/4-2-03.png)
+
+아키타입(Archetype)을 선택합니다. 아키타입이란 일종의 프로젝트 템플릿(Template)이라고 말할 수 있습니다.
+
+어떤 아키타입을 선택했느냐에 따라서 자동으로, 여러 가지 파일들을 생성하거나 라이브러리를 셋팅해주거나 등의 일을 해줍니다.
+
+Maven을 이용하여 웹 어플리케이션을 개발하기 위해서 `maven-archetype-webapp`을 선택한 후 `Next` 버튼을 클릭합니다.
+
+![Maven 프로젝트 생성](./img/4-2-04.png)
+
+Group Id는 보통 프로젝트를 진행하는 회사나 팀의 도메인 이름을 거꾸로 적습니다.
+
+Artifact Id는 해당 프로젝트의 이름을 적습니다.
+
+버전은 보통 기본값(0.0.1-SNAPSHOT)으로 설정합니다.
+
+package이름은 group id와 Artifact Id가 조합된 이름이 됩니다.
+
+Group Id를 kr.or.connect이고 Artifact Id가 mavenweb으로 설정했기 때문에 package이름은 kr.or.connect.mavenweb이 됩니다.
+
+`Finish`버튼을 클릭합니다.
+
+![Maven 프로젝트 생성](./img/4-2-05.png)
+
+프로젝트가 생성된 프로젝트의 디렉토리 구조입니다.
+
+디렉토리의 구조를 보기 위해서 이클립스의 `Navigator view`를 통해서 확인하였습니다.
+
+Maven으로 생성된 프로젝트의 경우 자바 소스는 src/main/java 폴더에 생성됩니다.
+
+웹 어플리케이션과 관련된 html, css등은 src/main/webapp 폴더에서 작성해야 합니다.
+
+그런데, 생성된 프로젝트를 보면 src/main/java 폴더가 보이지 않습니다.
+
+필요한 폴더는 별도로 만들어줄 필요가 있습니다.
+
+![Maven 프로젝트 생성](./img/4-2-06.png)
+
+
+
+### 2. Maven을 이용한 웹 어플리케이션 프로젝트 설정
+
+![Maven 프로젝트 설정](./img/4-2-07.png)
+
+프로젝트를 선택하고, 우측버튼을 눌러 `Properties`를 선택합니다.
+
+![Maven 프로젝트 설정](./img/4-2-08.png)
+
+`Java Compiler` 메뉴를 선택합니다.
+
+선택을 해보면 기본적으로 `JDK 1.5 버전`을 사용하는 것을 알 수 있습니다.
+
+Maven으로 프로젝트를 생성하면 기본적으로 JDK 1.5를 사용하게 됩니다.
+
+JDK8을 사용하도록 하려면 Maven설정 파일인 pom.xml파일을 수정해야 합니다.
+
+`pom.xml` 파일을 더블클릭하면 다음과 같이 보입니다.
+
+![Maven 프로젝트 설정](./img/4-2-09.png)
+
+아래쪽의 `pom.xml` 탭을 선택하면 소스가 보입니다.
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kr.or.connect</groupId>
+  <artifactId>mavenweb</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>mavenweb Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>mavenweb</finalName>
+  </build>
+</project>
+```
+
+자동으로 juint 3.8.1 라이브러리를 추가하고 있습니다.
+
+junit은 테스트를 위한 라이브러리입니다.
+
+위의 내용에 다음의 코드를 입력합니다.
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kr.or.connect</groupId>
+  <artifactId>mavenweb</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>mavenweb Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>mavenweb</finalName>
+        <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.6.1</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
+</project>
+```
+
+코드를 입력하였으면, 저장합니다.
+
+수정 후 다시 프로젝트 프로퍼티의 자바 컴파일러 항목을 보면 여전히 1.5 입니다.
+
+![Maven 프로젝트 설정](./img/4-2-10.png)
+
+프로젝트 프로퍼티를 선택한 후 Maven메뉴 아래의` Java EE Integration`을 선택합니다.
+
+> `Java EE Integration`이 보이지 않은 경우 `Perspective`에서 `Java EE`로 변경합니다.
+
+보이는 것처럼 `Enable Project Specific Settings` 앞의 체크박스를 선택합니다.
+
+그리고 아래의 `Apply and Close` 버튼을 클릭합니다.
+
+그리고, 다시 프로퍼티의 자바 컴파일러 버전을 확인하도록 하겠습니다.
+
+`JDK 1.8`이 사용되는 것을 알 수 있습니다.
+
+Maven의 설정을 바꾸면, 이클립스 프로젝트 설정이 연동되게 된 것입니다.
+
+
+
+### 3. Maven을 이용한 웹 어플리케이션 프로젝트 실행
+
+이번엔 `webapp` 폴더 아래의 `index.jsp`를 열어보도록 하겠습니다.
+
+![Maven 프로젝트 실행](./img/4-2-11.png)
+
+HttpServlet을 찾을 수 없다는 오류 메시지가 보입니다.
+
+다음에 배우게 되는 웹 백엔드 프로그래밍 기초 에서는 `Dynamic Web Application`을 만들 볼텐데요. 
+
+그 때는 WAS Runtime 설정을 하면서 `Tomcat`을 지정합니다.
+
+Tomcat안에 있는 서블릿 라이브러리가 사용되면서 문제가 없게 됩니다.
+
+실행시에도 WAS 위에서 실행되기 때문에 WAS의 서블릿 라이브러리를 사용하게 됩니다.
+
+Maven프로젝트로 생성했을 경우에는 WAS 런타임이 지정을 안 했기 때문에 서블릿 라이브러리를 찾을 수 없습니다.
+
+dependencies 엘리먼트에 다음을 추가합니다.
+
+```xml
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+```
+
+위의 내용을 보면 scope에 `provided`라는 항목이 있는데 servlet 라이브러리를 컴파일 시에만 사용되고 배포 시에는 사용되지 않는다는 것을 의미합니다.
+
+scope는 다음과 같은 4가지가 있습니다.
+
+- **compile** : 컴파일 할 때 필요. 테스트 및 런타임에도 클래스 패스에 포함됩니다. scope 을 설정하지 않는 경우 기본값입니다.
+- **runtime** : 런타임에 필요. JDBC 드라이버 등이 예가 됩니다. 컴파일 시에는 필요하지 않지만, 실행 시에 필요한 경우입니다.
+- **provided** : 컴파일 시에 필요하지만, 실제 런타임 때에는 컨테이너 같은 것에서 제공되는 모듈. servlet, jsp api 등이 이에 해당. 배포 시 제외됩니다. 
+- **test** : 테스트 코드를 컴파일 할 때 필요. 테스트 시 클래스 패스에 포함되며, 배포 시 제외됩니다.
+
+위의 내용을 추가하고 `index.jsp`에 가보면 오류가 발생하지 않는 것을 알 수 있습니다.
+
+![Maven 프로젝트 실행](./img/4-2-12.png)
+
+해당 프로젝트를 실행해 보도록 하겠습니다.
+
+프로젝트를 선택한 후 우측버튼을 클릭하여 `Run As -> Run on Server`를 선택합니다.
+
+![Maven 프로젝트 실행](./img/4-2-13.png)
+
+해당 웹 어플리케이션을 실행할 Runtime을 지정하고, 항상 해당 런타임을 사용하겠다는 아래쪽 체크박스도 선택한 후 `Finish` 버튼을 클릭합니다.
+
+> Tomcat이 설치되어있지 않은 경우 미리 설치를 해야합니다.
+
+![Maven 프로젝트 실행](./img/4-2-14.png)
+
+브라우저가 실행되면서 index.jsp가 보여지는 것을 확인할 수 있습니다.
+
+
+
+### 4. JSTL 라이브러리 추가
+
+이번엔 pom.xml 파일에 JSTL 라이브러리를 추가하도록 하겠습니다.
+
+```xml
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>1.2</version>
+    </dependency>
+```
+
+위의 코드를 넣었을 때 tomcat 에러가 난다면 아래의 코드를 넣어주세요.
+
+```xml
+    <dependency>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-spec</artifactId>
+        <version>1.2.5</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-impl</artifactId>
+        <version>1.2.5</version>
+    </dependency>
+```
+
+
+
+JSTL은 Tomcat이 기본으로 제공하지 않기 때문에, 컴파일할 때도 배포할 때도 사용돼야 합니다.
+
+그래서 scope에 이번엔 provided가 있지 않습니다.
+
+`webapp` 폴더에 jstl02.jsp를 만들고 다음 코드를 붙여넣기 하도록 하겠습니다.
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%
+request.setAttribute("n", 10);
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<c:if test="${n == 0}">
+n은 과 0과 같습니다.
+</c:if>
+
+<c:if test="${n == 10}">
+n은 과 10과 같습니다.
+</c:if>
+</body>
+</html>
+```
+
+라이브러리가 변경되었으니, 다시 run on server를 합니다.
+
+실행해도 결과가 아무것도 나오지 않는 것을 확인할 수 있습니다.
+
+프로젝트 프로퍼티를 선택한 후, `Project facets` 항목을 보면 다이나믹 웹 모듈의 버전이 2.3입니다.
+
+다이나믹 웹 모듈의 2.4부터 EL이 기본으로 사용할 수 있도록 설정되기 때문에 2.3일 경우에는 EL표기법의 결과가 출력되지 않습니다.
+
+앞의 프로젝트처럼 다이나믹 웹 모듈 3.1이 되도록 설정해보도록 하겠습니다.
+
+먼저 WEB-INF의 `web.xml` 파일을 열어보도록 하겠습니다.
+
+```xml
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+</web-app>
+```
+
+위의 내용을 다음과 같이 수정합니다.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
+  <display-name>Archetype Created Web Application</display-name>
+</web-app>
+```
+
+프로젝트아래의 `.settings/org.eclipse.wst.common.project.facet.core.xml` 파일을 엽니다.
+
+`Windows > Show veiw > Navigator`로 파일을 보면 .settings 파일을 발견할 수 있습니다.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<faceted-project>
+  <fixed facet="wst.jsdt.web"/>
+  <installed facet="jst.web" version="2.3"/>
+  <installed facet="wst.jsdt.web" version="1.0"/>
+  <installed facet="java" version="1.8"/>
+</faceted-project>
+```
+
+위의 내용을 다음과 같이 수정합니다.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<faceted-project>
+  <fixed facet="wst.jsdt.web"/>
+  <installed facet="jst.web" version="3.1"/>
+  <installed facet="wst.jsdt.web" version="1.0"/>
+  <installed facet="java" version="1.8"/>
+</faceted-project>
+```
+
+프로젝트 프로퍼티의 `Project facets`항목을 보면 다이나믹 웹 모듈이 3.1로 바뀐 것을 볼 수 있습니다.
+
+이제 `jstl02.jsp`를 `run on server`로 실행합니다.
+
+실행을 하지만 오류가 나면서 실행이 안 되는 경우가 있을 수 있습니다.
+
+이클립스의 버그로, 수정되기 전의 데이터와 수정된 데이터가 섞여서 실행되기 때문입니다.
+
+이 경우 웹 어플리케이션을 깔끔히 초기화하고 실행하는 것이 좋을 수 있습니다.
+
+1. 기존 tomcat을 종료합니다.
+2. 혹시 바뀌지 않았다면 프로젝트를 선택하고, 우측버튼을 눌러서 `Maven -> update project`를 선택한 후 확인하세요.
+3. Servers view에서 기존 Tomcat Runtime을 삭제
+4. `Project -> Clean`선택
+5. 프로젝트 익스플로러에서 Server 삭제
+
+위와 같은 과정을 거친 후 `Run on Server`로 실행해보세요.
+
+결과가 잘 나오는 것을 확인할 수 있습니다.
+
+지금까지 배웠던 내용 중에서 가장 복잡한 것 같은데요.
+
+다이나믹 웹 모듈을 2.3에서 3.1로 바꾸는 것은 프로젝트가 한번 만들어지면, 그 이후부터는 그 프로젝트가 더 이상 사용되지 않을 때까지 계속 사용되기 때문에 자주 개발자가 해야 할 일은 아닙니다.
+
+그 이후부터는 pom.xml에 원하는 기능을 추가하면서 개발을 진행하면 됩니다.
+
+
+
+### * 참고 자료
+
+[How to Create Dynamic Web Project using Maven in Eclipse?](https://crunchify.com/how-to-create-dynamic-web-project-using-maven-in-eclipse/)
+
+[How to fix Cannot change version of project facet Dynamic Web Module to 3.0 Error in Eclipse](https://crunchify.com/how-to-fix-cannot-change-version-of-project-facet-dynamic-web-module-to-3-0-error-in-eclipse/)
+
+[Maven in 5 Minutes](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
+
