@@ -2544,3 +2544,416 @@ n은 과 10과 같습니다.
 
 [Maven in 5 Minutes](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
 
+
+
+# 5. JDBC
+
+## 1) JDBC란?
+
+### 1. JDBC 개요
+
+- **JDBC(Java Database Connectivity)**의 정의
+  - 자바를 이용한 데이터베이스 접속과 SQL 문장의 실행, 그리고 실행 결과로 얻어진 데이터의 핸들링을 제공하는 방법과 절차에 관한 규약
+  - 자바 프로그램 내에서 SQL문을 실행하기 위한 자바 API
+  - SQL과 프로그래밍 언어의 통합 접근 중 한 형태
+- JAVA는 표준 인터페이스인 JDBC API를 제공
+- 데이터베이스 벤더, 또는 기타 써드파티에서는 JDBC 인터페이스를 구현한 드라이버(driver)를 제공한다.
+
+
+
+### 2. JDBC 환경 구성
+
+- JDK 설치
+- JDBC 드라이버 설치
+  - Maven에 다음과 같은 의존성을 추가합니다.
+
+```xml
+<dependency>   
+  <groupId>mysql</groupId>   
+       <artifactId>mysql-connector-java</artifactId>
+       <version>5.1.45</version>
+ </dependency>
+```
+
+
+
+### 3. JDBC 클래스의 생성 관계
+
+![JDBC 클래스의 생성 관계](./img/5-1-01.png)
+
+
+
+### 4. JDBC를 이용한 프로그래밍 방법
+
+1. **IMPORT**
+
+   ```java
+   import java.sql.*;
+   ```
+
+   - DriverManager, Connection, Statement 인터페이스
+
+2. **드라이버 로드**
+
+   ```java
+   Class.forName( "com.mysql.jdbc.Driver" );
+   ```
+
+   - **Class**라는 클래스가 갖고 있는 **forName** 메서드를 이용하면 객체가 메모리에 올라갑니다.
+
+3. **Connection 얻기**
+
+   ```java
+   String dburl  = "jdbc:mysql://localhost/dbName";
+   
+   Connection con =  DriverManager.getConnection ( dburl, ID, PWD );
+   ```
+
+   - **Connection** 객체를 얻기 위해 **DriverManager** 객체를 사용합니다.
+   - 데이터베이스의 `url, user, password` 정보를 알려줘야 합니다.
+   - 소스코드 예제
+
+   ``` java
+   public static Connection getConnection() throws Exception{
+   	String url = "jdbc:oracle:thin:@117.16.46.111:1521:xe";
+   	String user = "smu";
+   	String password = "smu";
+   	Connection conn = null;
+   	Class.forName("oracle.jdbc.driver.OracleDriver");
+   	conn = DriverManager.getConnection(url, user, password);
+   	return conn;
+   }
+   ```
+
+4. **Statement 객체 생성**
+
+   ```java
+   Statement stmt = con.createStatement();
+   ```
+
+   - 쿼리를 사용하기 위해 **Statement** 객체를 얻어야 합니다.
+   - **Connection**을 이용하여 **Statement**를 얻어냅니다.
+
+5. **질의 수행**
+
+   ```java
+   ResultSet rs = stmt.executeQuery("select no from user" );
+   
+   //참고
+   stmt.execute(“query”);             //any SQL
+   stmt.executeQuery(“query”);     //SELECT
+   stmt.executeUpdate(“query”);   //INSERT, UPDATE, DELETE
+   ```
+
+   - **Statement** 객체에 쿼리문을 작성합니다.
+
+6. **ResultSet으로 결과 받기**
+
+   ```java
+   ResultSet rs =  stmt.executeQuery( "select no from user" );
+   while ( rs.next() )
+         System.out.println( rs.getInt("no"));
+   ```
+
+   - 결과 셋은 데이터베이스가 가지고 있고, 결과 셋을 가리키는 레퍼런스 변수만 받았습니다.
+   - 데이터를 한꺼번에 가져오는 것이 아니라 첫번째 레코드부터 하나씩 꺼내옵니다.
+   - `getInt("no")` : 컬럼명이 'no'인 컬럼의 값 가져오기
+
+7. **Close**
+
+   - 객체를 반대 순서로 모두 닫아야 합니다.
+
+   ```java
+   rs.close();
+   
+   stmt.close();
+   
+   con.close();
+   ```
+
+
+
+### 5. 소스코드 예제
+
+- 예제1
+
+```java
+public List<GuestBookVO> getGuestBookList(){
+		List<GuestBookVO> list = new ArrayList<>();
+		GuestBookVO vo = null;
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try{
+			conn = DBUtil.getConnection();
+			String sql = "select * from guestbook";	// guestbook 테이블에 있는 모든 데이터 가져오기
+			ps = conn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while(rs.next()){
+				vo = new GuestBookVO();
+				vo.setNo(rs.getInt(1));
+				vo.setId(rs.getString(2));
+				vo.setTitle(rs.getString(3));
+				vo.setConetnt(rs.getString(4));
+				vo.setRegDate(rs.getString(5));
+				list.add(vo);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			DBUtil.close(conn, ps, rs);
+		}		
+		return list;		
+}
+```
+
+- 예제2
+
+```java
+public int addGuestBook(GuestBookVO vo){
+		int result = 0;
+		Connection conn = null;
+		PreparedStatement ps = null;
+		try{
+			conn = DBUtil.getConnection();
+			String sql = "insert into guestbook values("
+					+ "guestbook_seq.nextval,?,?,?,sysdate)";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, vo.getId());
+			ps.setString(2, vo.getTitle());
+			ps.setString(3, vo.getConetnt());
+			result = ps.executeUpdate();
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			DBUtil.close(conn, ps);
+		}
+		
+		return result;
+}
+```
+
+- 예제3
+
+```java
+public static void close(Connection conn, PreparedStatement ps){
+		if (ps != null) {
+			try {
+				ps.close();
+			} catch (SQLException e) {e.printStackTrace(); }
+		}
+		if (conn != null) {
+			try {
+				conn.close();
+			} catch (SQLException e) {e.printStackTrace();}
+		}
+}
+```
+
+- 프레임워크를 사용하면 반복적으로 해야하는 작업을 알아서 실행시켜줍니다.
+
+
+
+### * 참고 자료
+
+[Java API Reference](https://docs.oracle.com/javase/8/docs/api/)
+
+[JDBC Tutorial](https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html)
+
+
+
+## 2) JDBC 실습
+
+### 1. 실습1
+
+#### 1.1. Maven 프로젝트 생성
+
+`File -> New -> Maven Project` 메뉴를 클릭합니다.
+
+![JDBC 실습1](./img/5-2-01.png)
+
+`Next` 버튼을 클릭합니다.
+
+![JDBC 실습1](./img/5-2-02.png)
+
+`quickstart` 선택 후 `Next` 버튼을 클릭합니다.
+
+![JDBC 실습1](./img/5-2-03.png)
+
+`Group Id, Artifact Id` 작성 후 `Finish` 버튼을 클릭합니다.
+
+#### 1.2. pom.xml
+
+`JDK 1.8` 버전 사용을 위해 plugin을 추가하고, `JDBC 드라이버`를 사용하기 위해 `Dependency`에 추가합니다.
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>kr.or.connect</groupId>
+	<artifactId>jdbcexam</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>jdbcexam</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.45</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+```
+
+프로젝트 우클릭 후 `Maven -> Update Project`를 해줍니다.
+
+#### 1.3. 데이터를 저장할 수 있는 객체 생성 - Role.java
+
+![JDBC 실습1](./img/5-2-04.png)
+
+`src/main/java -> kr.or.connect.jdbcexam` 우클릭 후 `New -> Class` 메뉴를 선택합니다.
+
+![JDBC 실습1](./img/5-2-05.png)
+
+관련있는 클래스끼리 같은 패키지에 묶기 위해 `dto` 패키지를 만듭니다.
+
+클래스명을 작성하고 `Finish` 버튼을 클릭합니다.
+
+```java
+private Integer roleId;
+private String description;
+```
+
+Integer 타입의 **roleId**, String 타입의 **description**을 만들어줍니다.
+
+데이터를 꺼내고 넣는 작업을 수행하기 위해 **getter, setter** 메서드를 생성합니다.
+
+`Source -> Generate Getters and Setters` 메뉴를 클릭합니다.
+
+![JDBC 실습1](./img/5-2-06.png)
+
+`Select All`을 클릭한 후 `OK` 버튼을 클릭합니다.
+
+![JDBC 실습1](./img/5-2-07.png)
+
+객체 안에 들어있는 값들을 편하게 출력할 수 있도록 toString() 메서드를 사용합니다.
+
+`Source -> Generate toString()` 메뉴를 클릭합니다.
+
+![JDBC 실습1](./img/5-2-08.png)
+
+`OK` 버튼을 클릭합니다.
+
+![JDBC 실습1](./img/5-2-09.png)
+
+객체를 생성할 때 편하게 하기 위해 생성자를 추가합니다.
+
+인자를 받아 각각에 담아주는 생성자도 추가합니다.
+
+```java
+public Role() {
+
+}
+
+public Role(Integer roleId, String description) {
+		super();
+		this.roleId = roleId;
+		this.description = description;
+}
+```
+
+`Source -> Generate Constructor using Fields` 메뉴를 통해서 쉽게 만들 수 있습니다.
+
+- Role.java
+
+```java
+package kr.or.connect.jdbcexam.dto;
+
+public class Role {
+	private Integer roleId;
+	private String description;
+
+	public Role() {
+
+	}
+
+	public Role(Integer roleId, String description) {
+		super();
+		this.roleId = roleId;
+		this.description = description;
+	}
+
+	public Integer getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Integer roleId) {
+		this.roleId = roleId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+	public String toString() {
+		return "Role [roleId=" + roleId + ", description=" + description + "]";
+	}
+}
+```
+
+#### 1.4. 입력, 조회, 수정, 삭제하는 클래스 생성 - RoleDao.java
+
+`src/main/java -> kr.or.connect.jdbcexam` 우클릭 후 `New -> Class` 메뉴를 선택합니다.
+
+![JDBC 실습1](./img/5-2-10.png)
+
+`dao`패키지에 `RoleDao` 클래스를 생성합니다.
+
+먼저 데이터를 한 건 가져오는 메서드를 추가하겠습니다.
+
+한 건에 대한 정보를 담아낼 객체가 `Role`이기 때문에 role을 리턴하도록 만들어줍니다.
+
+`role_id`를 받아서 정보를 가져오도록 하겠습니다.
+
+```java
+public class RoleDao {
+	public Role getRole(Integer roldId) {
+		Role role = null;
+		
+		return role;
+	}
+}
+```
+
