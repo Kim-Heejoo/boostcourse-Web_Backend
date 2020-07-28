@@ -4,6 +4,16 @@ public class Role {
 	private Integer roleId;
 	private String description;
 	
+	public Role() {
+
+	}
+
+	public Role(Integer roleId, String description) {
+		super();
+		this.roleId = roleId;
+		this.description = description;
+	}
+	
 	public Integer getRoleId() {
 		return roleId;
 	}

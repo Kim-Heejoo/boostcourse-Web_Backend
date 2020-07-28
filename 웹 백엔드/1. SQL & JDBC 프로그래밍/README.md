@@ -2784,7 +2784,7 @@ public static void close(Connection conn, PreparedStatement ps){
 
 #### 1.2. pom.xml
 
-`JDK 1.8` 버전 사용을 위해 plugin을 추가하고, `JDBC 드라이버`를 사용하기 위해 `Dependency`에 추가합니다.
+`JDK 1.8` 버전 사용을 위해 plugin을 추가하고, `JDBC 드라이버`를 사용하기 위해 **Dependency**에 추가합니다.
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2842,7 +2842,7 @@ public static void close(Connection conn, PreparedStatement ps){
 
 ![JDBC 실습1](./img/5-2-05.png)
 
-관련있는 클래스끼리 같은 패키지에 묶기 위해 `dto` 패키지를 만듭니다.
+관련있는 클래스끼리 같은 패키지에 묶기 위해 **dto** 패키지를 만듭니다.
 
 클래스명을 작성하고 `Finish` 버튼을 클릭합니다.
 
@@ -2863,7 +2863,7 @@ Integer 타입의 **roleId**, String 타입의 **description**을 만들어줍�
 
 ![JDBC 실습1](./img/5-2-07.png)
 
-객체 안에 들어있는 값들을 편하게 출력할 수 있도록 toString() 메서드를 사용합니다.
+객체 안에 들어있는 값들을 편하게 출력할 수 있도록 **toString()** 메서드를 사용합니다.
 
 `Source -> Generate toString()` 메뉴를 클릭합니다.
 
@@ -2939,13 +2939,9 @@ public class Role {
 
 ![JDBC 실습1](./img/5-2-10.png)
 
-`dao`패키지에 `RoleDao` 클래스를 생성합니다.
+**dao**패키지에 **RoleDao** 클래스를 생성합니다.
 
 먼저 데이터를 한 건 가져오는 메서드를 추가하겠습니다.
-
-한 건에 대한 정보를 담아낼 객체가 `Role`이기 때문에 role을 리턴하도록 만들어줍니다.
-
-`role_id`를 받아서 정보를 가져오도록 하겠습니다.
 
 ```java
 public class RoleDao {
@@ -2956,4 +2952,291 @@ public class RoleDao {
 	}
 }
 ```
+
+한 건에 대한 정보를 담아낼 객체가 **Role**이기 때문에 role을 리턴하도록 만들어줍니다.
+
+`role_id`를 받아서 정보를 가져오도록 하겠습니다.
+
+``` java
+Connection conn = null;
+PreparedStatement ps = null;
+ResultSet rs = null;
+```
+
+연결을 맺기 위한 **Connection** 객체, 명령을 선언할 **Statement** 객체, 결과 값을 담아낼 **ResultSet** 객체를 선언합니다.
+
+연결을 하고 명령을 수행하는 작업을 하기 전에, 데이터베이스 연결과 같이 어딘가에 연결을 해서 정보를 가져오는 경우 중간에 접속이 끊어지는 등의 예외 상황들이 발생할 수 있기 때문에 예외처리를 해야합니다.
+
+```java
+try {
+
+} catch (Exception e) {
+	e.printStackTrace();
+} finally {
+	if (rs != null) {
+		try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	if (ps != null) {
+		try {
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	if (conn != null) {
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
+```
+
+**try-catch** 구문을 이용하여 예외처리를 합니다.
+
+접속했던 부분들, 연결했던 부분들을 반드시 닫아주는 것이 굉장히 중요합니다. 이 부분을 실수로 잊어버리는 경우가 있어 먼저 닫아주는 코드를 작성하겠습니다.
+
+어떤 일이 있어도 반드시 수행되는 **finally** 구절에 닫아주는 코드를 작성합니다.
+
+닫아주는 코드는 각 객체마다 **close** 메서드를 사용하면 되는데 이 메서드도 예외처리를 해줘야 합니다. 그 전에 먼저 예외가 발생할 상황들에 대해서 피할 수 있도록 하는 것이 좋습니다.  접속을 맺다가 예외가 발생했거나 명령을 얻다가 예외가 발생되었을 경우 등 객체가 null인 상태에서 close를 하려고 하면 예외가 발생될 것을 알고 있기 때문에 이런 상황을 피할 수 있도록 조건문을 추가합니다.
+
+연결하고 명령을 수행하는 일들은 **try** 구문 안에서 작업하겠습니다.
+
+먼저 드라이버를 로딩하겠습니다.
+
+```java
+Class.forName("com.mysql.jdbc.Driver");
+```
+
+**MySQL**을 사용할 것이기 때문에 MySQL이 제공해주는 클래스를 메모리에 올리는 작업을 해야합니다.
+
+이 부분을 수행하기 위해 **Class** 클래스가 가지고 있는 **forName** 메서드를 수행을 시켜주면 드라이버가 로딩되는 일을 수행합니다.
+
+그 다음에는 **Connection** 객체를 얻어와야 합니다.
+
+```java
+conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+```
+
+**Connection** 객체를 얻기 위해 **DriverManager** 클래스가 가지고 있는 **getConnection** 메서드를 이용합니다.
+
+**getConnection** 메서드에 내가 접속할 DB의 URL, user, password 정보를 담아주면 됩니다.
+
+```java
+private static String dburl = "jdbc:mysql://localhost:3306/connectdb";
+private static String dbUser = "connectuser";
+private static String dbpasswd = "connect123!@#";
+```
+
+그런데 이 정보는 한 번만 사용하는 것이 아니라 여러 명령을 수행하기 위해 DB 접속하는 부분이 여러번 나오면서 계속 똑같이 사용하게 될 것이므로 위와 같이 상수처럼 바깥쪽에 선언을 해놓고 사용하도록 하겠습니다.
+
+다음은 **Statement** 객체를 얻어 쿼리문을 작성하겠습니다.
+
+```java
+String sql = "SELECT description,role_id FROM role WHERE role_id = ?";
+ps = conn.prepareStatement(sql);
+ps.setInt(1, roleId);
+```
+
+**Connection** 객체를 이용하여 **Statement** 객체를 얻어냅니다.
+
+**Statement** 객체에는 수행하고자 하는 쿼리문을 넣어야 합니다.
+
+**role** 테이블에서 **role_id**가 **roleId**와 같은 **role_id, description**을 얻어오도록 쿼리를 작성합니다.
+
+**roleId**는 이 메서드가 호출될 때 인자 값이 무엇이 들어오는지에 따라 값이 매번 바뀌게 되는데 이 부분을 수행할 때 `물음표`로 대신 사용하는 것이 **preparedStatement**의 특징입니다.
+
+이렇게 사용하게 되면 쿼리 자체는 계속 변경되지 않고 물음표가 바인딩되는 부분반 바뀌기 때문에 훨씬 효율적입니다.
+
+반드시 해야 할 일은 물음표에 대한 부분의 값을 바꿔줘야 합니다.
+
+**prepareStatement**가 가지고 있는 **set** 메서드를 이용하면 됩니다.
+
+**role_id**의 컬럼이 Integer기 때문에 **setInt** 메서드를 이용합니다.
+
+첫 번째 파라미터인 **parameterIndex**는 물음표의 순서입니다.
+
+두 번째 파라미터에는 물음표에 넣을 값을 입력합니다. 지금은 메서드 인자로 값을 받아올 것이기 때문에 **roleId**를 넣도록 하겠습니다.
+
+쿼리가 준비 되었으면 실행을 해야합니다.
+
+```java
+rs = ps.executeQuery();
+```
+
+**executeQuery**를 이용하여 쿼리를 실행하면 **ResultSet** 객체 **rs**가 결과 값을 알고 있을 것입니다.
+
+이 **ResultSet** 객체로부터 결과 값을 꺼내면 됩니다.
+
+```java
+if (rs.next()) {
+	String description = rs.getString(1);
+	int id = rs.getInt("role_id");
+	role = new Role(id, description);
+}
+```
+
+**next** 메서드는 결과 값이 있다면 첫 번째 레코드로 커서를 이동시키고 true를 리턴합니다.
+
+다시 **next**가 수행되면 다음 레코드가 있는지 확인하여 다음 레코드로 커서를 이동시켜주고 true를 리턴합니다.
+
+만약 다음 결과 값이 없다면 false를 리턴합니다.
+
+**roleId**에 해당하는 결과 값이 없을 경우 실행하면 안되니까 조건문을 만들어줍니다.
+
+가져온 값을 꺼낼 때는 **ResultSet** 객체의 **get** 메서드를 데이터 타입에 맞게 사용하면 됩니다..
+
+값을 꺼내는 순서는 쿼리문에 작성한 컬럼 순으로 작성합니다.
+
+꺼내는 방법은 컬럼의 순서를 써도 되고, 컬럼명을 적어도 됩니다.
+
+가져온 값들을 **role** 객체에 담아줍니다.
+
+```java
+package kr.or.connect.jdbcexam.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import kr.or.connect.jdbcexam.dto.Role;
+
+public class RoleDao {
+	private static String dburl = "jdbc:mysql://localhost:3306/connectdb";
+	private static String dbUser = "connectuser";
+	private static String dbpasswd = "connect123!@#";
+
+	public Role getRole(Integer roleId) {
+		Role role = null;
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+			String sql = "SELECT description,role_id FROM role WHERE role_id = ?";
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, roleId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				String description = rs.getString(1);
+				int id = rs.getInt("role_id");
+				role = new Role(id, description);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return role;
+	}
+}
+```
+
+#### 1.5. 테스트 - JDBCExam1.java
+
+예제가 잘 실행되는지 테스트 해보겠습니다.
+
+`src/main/java -> kr.or.connect.jdbcexam` 우클릭 후 `New -> Class` 메뉴를 선택합니다.
+
+![JDBC 실습1](./img/5-2-11.png)
+
+클래스명 작성 후 메인 메서드가 자동으로 만들어지게 하는 체크박스를 선택하고 `Finish` 버튼을 클릭합니다.
+
+**RoleDao**가 잘 실행이 되는지 테스트 하는 것이므로 **RoleDao** 객체를 생성합니다.
+
+dao가 가지고 있는 **getRole** 메서드를 수행합니다.
+
+**role_id**가 100인 값을 가져오도록 하겠습니다.
+
+```java
+package kr.or.connect.jdbcexam;
+
+import kr.or.connect.jdbcexam.dao.RoleDao;
+import kr.or.connect.jdbcexam.dto.Role;
+
+public class JDBCExam1 {
+
+	public static void main(String[] args) {
+		RoleDao dao = new RoleDao();
+		Role role = dao.getRole(100);
+		System.out.println(role);
+	}
+}
+```
+
+#### 1.6. 실행
+
+`Run` 버튼을 클릭하여 실행합니다.
+
+##### 1.6.1. 오류
+
+- **java.sql.SQLException: Unable to load authentication plugin 'caching_sha2_password'.**
+
+  만들어둔 계정의 암호 플러그인이 caching_sha2_password(기본값) 이어서 발생합니다.
+
+  MySQL에 `root` 권한으로 접속 후 다음 코드를 실행하면 됩니다.
+
+```mysql
+ALTER USER 'connectuser'@'%' IDENTIFIED WITH mysql_native_password BY 'connect123!@#';
+
+flush privileges;
+```
+
+​	이후 다음 쿼리를 입력해 사용할 계정의 plugin이 `mysql_native_password`로 되어있는지 확인합니다.
+
+```mysql
+select host, user, plugin, authentication_string, password_last_changed from user;
+```
+
+- **(ssl 경고) + javax.net.ssl.SSLException: closing inbound before receiving peer's close_notify**
+
+  MySQL 특정 버전 이상부터 ssl 옵션을 명확하게 지정 안하면 ssl 커넥션이 실행된다고 하는데 지금은 ssl을 사용하지 않으므로 ssl 옵션을 꺼줘야 합니다.
+
+```java
+// 이전 코드
+private static String dburl = "jdbc:mysql://localhost/connectdb";
+// 수정 후 코드
+private static String dburl = "jdbc:mysql://localhost/connectdb?useSSL=false";
+```
+
+##### 1.6.2. 결과
+
+![JDBC 실습1](./img/5-2-12.png)
+
+![JDBC 실습1](./img/5-2-13.png)
+
+데이터베이스에서 똑같은 쿼리문을 수행했을 때 같은 결과가 나오는 것을 확인할 수 있습니다.
+
+
 
