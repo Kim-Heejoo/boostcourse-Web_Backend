@@ -3444,8 +3444,6 @@ public class JDBCExam2 {
 
 `Run` 버튼을 클릭하여 실행합니다.
 
-##### 2.3.1. 결과
-
  ![JDBC 실습2](./img/5-2-15.png)
 
 한 건을 입력하였기 때문에 결과값이 1이 나옵니다.
@@ -3453,3 +3451,156 @@ public class JDBCExam2 {
  ![JDBC 실습2](./img/5-2-16.png)
 
 데이터베이스에도 **role_id** 500번에 **description**이 CTO인 값이 잘 들어갔습니다.
+
+
+
+### 3. 실습3
+
+#### 3.1. getRoles - RoleDao.java
+
+모두 조회하는 메서드를 만들어 보겠습니다.
+
+```java
+public List<Role> getRoles() {
+    
+}
+```
+
+**Role** 정보를 모두 가져와야 하기 때문에 **List**로 리턴해야합니다.
+
+위의 예제들에서는 필요한 객체를 선언하고, try 블록에서 하고 싶은 일을 수행하고, catch 블록에서 예외처리를 하고, finally 블록에서 close 했습니다.
+
+이번에는 **try-with resource**를 이용해 보겠습니다.
+
+```java
+String sql = "SELECT description, role_id FROM role order by role_id desc";
+
+try (Connection conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+		PreparedStatement ps = conn.prepareStatement(sql)) {
+    
+    // 바인딩 처리하는 부분
+    
+    try (ResultSet rs = ps.executeQuery()) {
+        
+	catch (Exception e) {
+			e.printStackTrace();
+	}
+        
+} catch (Exception ex) {
+		ex.printStackTrace();
+}
+```
+
+**try(...)** 안에 사용할 리소스를 얻어오는 코드를 만들면 알아서 여기에 들어있는 객체들을 close 하는 일을 수행합니다.
+
+그래서 catch 블록까지는 있는데 finally에서 close 하는 구문이 없습니다.
+
+**Connection** 객체를 얻어오고, **Statement** 객체를 위의 쿼리문을 이용하여 얻어옵니다.
+
+쿼리문에서 바인딩을 해야하는 부분이 있다면 표시된 부분에서 처리를 해야합니다.
+
+**ResultSet** 객체는 try 블록 내부에서 얻어옵니다.
+
+```java
+while (rs.next()) {
+		String description = rs.getString(1);
+		int id = rs.getInt("role_id");
+		Role role = new Role(id, description);
+		list.add(role); // list에 반복할때마다 Role인스턴스를 생성하여 list에 추가한다.
+}
+```
+
+받아오는 값이 한 건이 아니라 여러 건이기 때문에 **rs.next()** 메서드가 여러 번 수행되어야 합니다.
+
+하나씩 꺼내서 **Role** 객체를 하나 생성해서 해당 객체에 정보를 담고 있습니다.
+
+이 **Role** 객체를 **List**에 담아줍니다.
+
+```java
+return list;
+```
+
+위의 과정들이 다 수행되면 모든 데이터를 담은 **List**를 반환해줍니다.
+
+```java
+public List<Role> getRoles() {
+		List<Role> list = new ArrayList<>();
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		String sql = "SELECT description, role_id FROM role order by role_id desc";
+		try (Connection conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			try (ResultSet rs = ps.executeQuery()) {
+
+				while (rs.next()) {
+					String description = rs.getString(1);
+					int id = rs.getInt("role_id");
+					Role role = new Role(id, description);
+					list.add(role); // list에 반복할때마다 Role인스턴스를 생성하여 list에 추가한다.
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return list;
+}
+```
+
+#### 3.2. 테스트 - JDBCExam3.java
+
+예제가 잘 실행되는지 테스트 해보겠습니다.
+
+`src/main/java -> kr.or.connect.jdbcexam` 우클릭 후 `New -> Class` 메뉴를 선택하여 **JDBCExam3** 클래스를 만듭니다.
+
+```java
+RoleDao dao = new RoleDao();
+
+List<Role> list = dao.getRoles();
+```
+
+**RoleDao** 객체를 생성하고 **getRoles** 메서드를 수행합니다.
+
+**getRoles**는 **List**를 리턴하기 때문에 List를 반환 받습니다.
+
+```java
+package kr.or.connect.jdbcexam;
+
+import java.util.List;
+
+import kr.or.connect.jdbcexam.dao.RoleDao;
+import kr.or.connect.jdbcexam.dto.Role;
+
+public class JDBCExam3 {
+	public static void main(String[] args) {
+
+		RoleDao dao = new RoleDao();
+		
+		List<Role> list = dao.getRoles();
+
+		for(Role role : list) {
+			System.out.println(role);
+		}
+	} 
+}
+```
+
+#### 3.3. 실행
+
+`Run` 버튼을 클릭하여 실행합니다.
+
+![JDBC 실습3](./img/5-2-17.png)
+
+![JDBC 실습3](./img/5-2-18.png)
+
+데이터베이스에서 똑같은 쿼리문을 수행했을 때 같은 결과가 나오는 것을 확인할 수 있습니다.
+
