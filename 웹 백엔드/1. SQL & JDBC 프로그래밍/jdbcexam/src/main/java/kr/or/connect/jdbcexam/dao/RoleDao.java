@@ -137,4 +137,28 @@ public class RoleDao {
 		return list;
 	}
 	
+	public int deleteRole(Integer roleId) {
+		int deleteCount = 0;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		String sql = "DELETE FROM role WHERE role_id = ?";
+		try (Connection conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setInt(1,  roleId);
+
+			deleteCount = ps.executeUpdate();
+            
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return deleteCount;
+	}
+	
 }

@@ -3604,3 +3604,64 @@ public class JDBCExam3 {
 
 데이터베이스에서 똑같은 쿼리문을 수행했을 때 같은 결과가 나오는 것을 확인할 수 있습니다.
 
+
+
+### 4. 실습4
+
+#### 3.1. deleteRole - RoleDao.java
+
+삭제하는 메서드를 만들어 보겠습니다.
+
+```java
+public int deleteRole(Integer roleId) {
+		int deleteCount = 0;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		String sql = "DELETE FROM role WHERE role_id = ?";
+		try (Connection conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setInt(1,  roleId);
+
+			deleteCount = ps.executeUpdate();
+            
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return deleteCount;
+}
+```
+
+#### 3.2. 테스트 - JDBCExam4.java
+
+```java
+package kr.or.connect.jdbcexam;
+
+import kr.or.connect.jdbcexam.dao.RoleDao;
+
+public class JDBCExam4 {
+
+	public static void main(String[] args) {
+		int roleId = 500;
+
+		RoleDao dao = new RoleDao();
+		int deleteCount = dao.deleteRole(roleId);
+
+		System.out.println(deleteCount);
+	}
+
+}
+```
+
+#### 3.3. 실행
+
+![JDBC 실습4](./img/5-2-19.png)
+
+![JDBC 실습4](./img/5-2-20.png)
+
