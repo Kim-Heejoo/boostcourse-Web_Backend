@@ -60,4 +60,47 @@ public class RoleDao {
 
 		return role;
 	}
+	
+	public int addRole(Role role) {
+		int insertCount = 0;
+
+		Connection conn = null;
+		PreparedStatement ps = null;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			
+			conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+			
+			String sql = "INSERT INTO role (role_id, description) VALUES ( ?, ? )";
+			
+			ps = conn.prepareStatement(sql);
+			
+			ps.setInt(1, role.getRoleId());
+			ps.setString(2, role.getDescription());
+
+			insertCount = ps.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return insertCount;
+	}
+	
 }

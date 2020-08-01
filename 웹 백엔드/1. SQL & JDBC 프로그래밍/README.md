@@ -3173,7 +3173,15 @@ public class RoleDao {
 
 클래스명 작성 후 메인 메서드가 자동으로 만들어지게 하는 체크박스를 선택하고 `Finish` 버튼을 클릭합니다.
 
+```java
+RoleDao dao = new RoleDao();
+```
+
 **RoleDao**가 잘 실행이 되는지 테스트 하는 것이므로 **RoleDao** 객체를 생성합니다.
+
+```java
+Role role = dao.getRole(100);
+```
 
 dao가 가지고 있는 **getRole** 메서드를 수행합니다.
 
@@ -3240,3 +3248,208 @@ private static String dburl = "jdbc:mysql://localhost/connectdb?useSSL=false";
 
 
 
+### 2. 실습2
+
+#### 2.1. addRole - RoleDao.java
+
+데이터 한 건을 입력하는 메서드를 추가하겠습니다.
+
+```java
+public int addRole(Role role) {
+    
+}
+```
+
+입력해야 될 것이므로 어떤 값을 가지고 입력할 것인지는 이 메서드를 수행하는 사용자로부터 받아야 하기 때문에 인자로 **role**을 받아옵니다.
+
+```java
+int insertCount = 0;
+```
+
+몇 건을 입력했는지 결과를 담을 int형 변수를 선언합니다.
+
+```java
+Connection conn = null;
+PreparedStatement ps = null;
+```
+
+연결을 맺기 위한 **Connection** 객체, 명령을 선언할 **Statement** 객체를 선언합니다.
+
+**insert**문은 결과 값을 가져오지 않기 때문에 **ResultSet** 객체는 사용하지 않습니다.
+
+```java
+Class.forName("com.mysql.jdbc.Driver");
+
+conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+
+String sql = "INSERT INTO role (role_id, description) VALUES ( ?, ? )";
+
+ps = conn.prepareStatement(sql);
+```
+
+드라이버를 로딩하고 드라이브 매니저로부터 **getConnection** 메서드를 이용하여 **Connect** 객체를 얻어옵니다.
+
+**Connection** 객체로부터 **prepareStatement** 객체를 얻어냅니다.
+
+쿼리에서 **VALUES**를 보면 실제 값이 들어가 있는 것이 아니라 물음표로 쿼리를 만들어 주고 있는 것을 볼 수 있습니다.
+
+이렇게 물음표가 들어간 쿼리는 완전한 쿼리는 아니기 때문에 반드시 이 물음표에 대한 값을 바인딩하는 코드가 있어야 합니다.
+
+```java
+ps.setInt(1, role.getRoleId());
+ps.setString(2, role.getDescription());
+```
+
+**preparedStatement** 객체에 **set** 메서드를 이용하여 값을 넣어줍니다.
+
+넣어줄 값의 데이터 타입에 따라서 **setInt, setString**과 같은 메서드를 적절하게 이용하시면 됩니다.
+
+메서드의 첫 번째 파라미터는 물음표의 순서입니다. 물음표의 순서는 쿼리에서 나열한 컬럼의 순서가 되겠죠.
+
+메서드의 두 번째 파라미터는 실제 들어가게 될 값입니다.
+
+```java
+insertCount = ps.executeUpdate();
+```
+
+**select** 문을 실행할 때, **executeQuery** 메서드를 사용했습니다.
+
+**insert, update, delete** 문은 **executeUpdate** 메서드를 사용합니다.
+
+쿼리가 실행됐을 때 int 값을 리턴 받아옵니다.
+
+```java
+try {
+    		...
+} catch (Exception e) {
+			e.printStackTrace();
+} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+}
+```
+
+Exception 처리하고 얻어온 객체를 반대 순서로 닫아줍니다.
+
+```java
+return insertCount;
+```
+
+결과 값을 리턴합니다.
+
+```java
+public int addRole(Role role) {
+		int insertCount = 0;
+
+		Connection conn = null;
+		PreparedStatement ps = null;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			
+			conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+			
+			String sql = "INSERT INTO role (role_id, description) VALUES ( ?, ? )";
+			
+			ps = conn.prepareStatement(sql);
+			
+			ps.setInt(1, role.getRoleId());
+			ps.setString(2, role.getDescription());
+
+			insertCount = ps.executeUpdate();
+            
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+    
+		return insertCount;
+}
+```
+
+#### 2.2. 테스트 - JDBCExam2.java
+
+insert문이 제대로 실행되는지 테스트 해보기 위해 **JDBCExam2** 파일을 만들겠습니다.
+
+`src/main/java -> kr.or.connect.jdbcexam` 우클릭 후 `New -> Class` 메뉴를 선택합니다.
+
+![JDBC 실습2](./img/5-2-14.png)
+
+클래스명 작성 후 메인 메서드가 자동으로 만들어지게 하는 체크박스를 선택하고 `Finish` 버튼을 클릭합니다.
+
+```java
+int roleId = 500;
+String description = "CTO";
+
+Role role = new Role(roleId, description);
+```
+
+**roleId**는 500번, **description**은 CTO로 값을 부여하고 객체를 생성합니다.
+
+```java
+RoleDao dao = new RoleDao();
+int insertCount = dao.addRole(role);
+```
+
+**RoleDao** 객체를 생성하고 **addRole** 메서드에 해당 객체를 넣어 실행합니다.
+
+```java
+package kr.or.connect.jdbcexam;
+
+import kr.or.connect.jdbcexam.dao.RoleDao;
+import kr.or.connect.jdbcexam.dto.Role;
+
+public class JDBCExam2 {
+	public static void main(String[] args) {
+		int roleId = 500;
+		String description = "CTO";
+		
+		Role role = new Role(roleId, description);
+		
+		RoleDao dao = new RoleDao();
+		int insertCount = dao.addRole(role);
+
+		System.out.println(insertCount);
+	}
+}
+```
+
+#### 2.3. 실행
+
+`Run` 버튼을 클릭하여 실행합니다.
+
+##### 2.3.1. 결과
+
+ ![JDBC 실습2](./img/5-2-15.png)
+
+한 건을 입력하였기 때문에 결과값이 1이 나옵니다.
+
+ ![JDBC 실습2](./img/5-2-16.png)
+
+데이터베이스에도 **role_id** 500번에 **description**이 CTO인 값이 잘 들어갔습니다.
