@@ -3608,7 +3608,7 @@ public class JDBCExam3 {
 
 ### 4. 실습4
 
-#### 3.1. deleteRole - RoleDao.java
+#### 4.1. deleteRole - RoleDao.java
 
 삭제하는 메서드를 만들어 보겠습니다.
 
@@ -3638,7 +3638,7 @@ public int deleteRole(Integer roleId) {
 }
 ```
 
-#### 3.2. 테스트 - JDBCExam4.java
+#### 4.2. 테스트 - JDBCExam4.java
 
 ```java
 package kr.or.connect.jdbcexam;
@@ -3659,9 +3659,82 @@ public class JDBCExam4 {
 }
 ```
 
-#### 3.3. 실행
+#### 4.3. 실행
 
 ![JDBC 실습4](./img/5-2-19.png)
 
 ![JDBC 실습4](./img/5-2-20.png)
 
+
+
+### 5. 실습5
+
+#### 5.1. updateRole - RoleDao.java
+
+삭제하는 메서드를 만들어 보겠습니다.
+
+미리 **Role** 테이블에 `role_id : 500, description : CTO`를 넣어주세요.
+
+![JDBC 실습5](./img/5-2-21.png)
+
+```java
+public int updateRole(Role role) {
+		int updateCount = 0;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		String sql = "update role set description = ? where role_id = ?";
+		try (Connection conn = DriverManager.getConnection(dburl, dbUser, dbpasswd);
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setString(1, role.getDescription());
+			ps.setInt(2,  role.getRoleId());
+			
+			updateCount = ps.executeUpdate();
+            
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return updateCount;
+}
+```
+
+#### 5.2. 테스트 - JDBCExam5.java
+
+```java
+package kr.or.connect.jdbcexam;
+
+import kr.or.connect.jdbcexam.dao.RoleDao;
+
+public class JDBCExam4 {
+
+	public static void main(String[] args) {
+		int roleId = 500;
+
+		RoleDao dao = new RoleDao();
+		int deleteCount = dao.deleteRole(roleId);
+
+		System.out.println(deleteCount);
+	}
+
+}
+```
+
+#### 5.3. 실행
+
+![JDBC 실습5](./img/5-2-22.png)
+
+![JDBC 실습5](./img/5-2-23.png)
+
+
+
+### * 참고 자료
+
+[JDBC Tutorial](https://docs.oracle.com/javase/tutorial/jdbc/basics/index.html)
+
+[The try-with-resources Statement](https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html)
