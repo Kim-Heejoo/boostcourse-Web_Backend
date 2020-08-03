@@ -14,6 +14,13 @@ public class BusinessCard {
         this.companyName = companyName;
         this.createDate = new Date();
     }
+    
+    public BusinessCard(String name, String phone, String companyName, Date createDate) {
+    	this.name = name;
+        this.phone = phone;
+        this.companyName = companyName;
+        this.createDate = createDate;
+	}
 
     public String getName() {
         return name;
