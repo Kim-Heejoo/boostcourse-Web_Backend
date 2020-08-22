@@ -9,13 +9,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @WebServlet("/guestbooks/write")
 public class GuestbookWriteServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 코드를 작성하세요.
+    	GuestbookDao guestbookDao = new GuestbookDao();
+    	request.setCharacterEncoding("UTF-8");
+    	guestbookDao.addGuestbook(new Guestbook(request.getParameter("name"),request.getParameter("content")));
+    	
+    	response.sendRedirect("/guestbooks");
+
     }
 
 }
