@@ -1,16 +1,17 @@
-package kr.or.connect.di_xml;
+package kr.or.connect.DI_xml;
 
 //빈클래스
 public class UserBean {
-	// 필드는 private한다.
+	
+	//필드는 private한다.
 	private String name;
 	private int age;
 	private boolean male;
-
-	// 기본생성자를 반드시 가지고 있어야 한다.
+	
+	//기본생성자를 반드시 가지고 있어야 한다.
 	public UserBean() {
 	}
-
+	
 	public UserBean(String name, int age, boolean male) {
 		this.name = name;
 		this.age = age;
@@ -41,4 +42,5 @@ public class UserBean {
 	public void setMale(boolean male) {
 		this.male = male;
 	}
+
 }

@@ -4,20 +4,19 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>kr.or.connect</groupId>
-	<artifactId>di-xml</artifactId>
+	<artifactId>DI-xml</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>di-xml</name>
+	<name>DI-xml</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>5.2.6.RELEASE</spring.version>
+		<spring.version> 5.2.6.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>

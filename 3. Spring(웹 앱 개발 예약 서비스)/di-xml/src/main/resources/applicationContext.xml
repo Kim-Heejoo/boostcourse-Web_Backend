@@ -3,6 +3,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="userBean" class="kr.or.connect.di_xml.UserBean"></bean>
-
+	<bean id="userBean" class="kr.or.connect.DI_xml.UserBean"></bean>
+	<bean id="e" class="kr.or.connect.DI_xml.Engine"></bean>
+	<bean id="car" class="kr.or.connect.DI_xml.Car">
+		<property name="engine" ref="e"></property>
+	</bean>
+	
 </beans>

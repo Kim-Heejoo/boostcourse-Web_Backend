@@ -1,4 +1,4 @@
-package kr.or.connect.di_xml;
+package kr.or.connect.DI_xml;
 
 /**
  * Hello world!
