@@ -3,3 +3,6 @@ RemoteSystemsTempFiles/
 .recommenders/
 Servers/
 target/
+.classpath
+.project
+.settings
